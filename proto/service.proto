@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+
+package proto;
+
+// The database service definition
+service DBProvider {
+  // Query executes a statement that reads data.
+  rpc Query (QueryRequest) returns (QueryResponse) {}
+
+  // Exec executes a statement that writes data.
+  rpc Exec (ExecRequest) returns (ExecResponse) {}
+}
+
+// The query statement
+message QueryRequest {
+  string stmt = 1;
+}
+
+// The query response
+message QueryResponse {
+  string message = 1;
+}
+
+// The exec statement
+message ExecRequest {
+  string stmt = 1;
+}
+
+// The exec response
+message ExecResponse {
+  string message = 1;
+}
+
