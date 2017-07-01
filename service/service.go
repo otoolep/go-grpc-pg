@@ -31,7 +31,7 @@ func NewService(ln net.Listener, db *sql.DB) *Service {
 		logger: log.New(os.Stderr, "[service] ", log.LstdFlags),
 	}
 
-	pb.RegisterDBProviderServer(s.g, &s)
+	pb.RegisterDBProviderServer(s.g, (*gprcService)(&s))
 	return &s
 }
 
@@ -39,10 +39,20 @@ func (s *Service) Addr() string {
 	return s.addr.String()
 }
 
-func (s *Service) Query(context.Context, *pb.QueryRequest) (*pb.QueryResponse, error) {
+type gprcService Service
+
+func (g *gprcService) Query(c context.Context, q *pb.QueryRequest) (*pb.QueryResponse, error) {
+	_, err := g.db.Query(q.Stmt)
+	if err != nil {
+		return nil, err
+	}
 	return nil, nil
 }
 
-func (s *Service) Exec(context.Context, *pb.ExecRequest) (*pb.ExecResponse, error) {
+func (g *gprcService) Exec(c context.Context, e *pb.ExecRequest) (*pb.ExecResponse, error) {
+	_, err := g.db.Exec(e.Stmt)
+	if err != nil {
+		return nil, err
+	}
 	return nil, nil
 }
