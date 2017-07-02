@@ -13,30 +13,54 @@ import (
 )
 
 type Service struct {
-	g  *grpc.Server
-	db *sql.DB
+	grpc *grpc.Server
+	db   *sql.DB
 
 	ln   net.Listener
-	addr net.Addr
+	addr string
 
 	logger *log.Logger
 }
 
-func NewService(ln net.Listener, db *sql.DB) *Service {
+func New(addr string, db *sql.DB) *Service {
 	s := Service{
-		g:      grpc.NewServer(),
+		grpc:   grpc.NewServer(),
 		db:     db,
-		ln:     ln,
-		addr:   ln.Addr(),
+		addr:   addr,
 		logger: log.New(os.Stderr, "[service] ", log.LstdFlags),
 	}
 
-	pb.RegisterDBProviderServer(s.g, (*gprcService)(&s))
+	pb.RegisterDBProviderServer(s.grpc, (*gprcService)(&s))
 	return &s
 }
 
 func (s *Service) Addr() string {
-	return s.addr.String()
+	return s.addr
+}
+
+func (s *Service) Open() error {
+	ln, err := net.Listen("tcp", s.addr)
+	if err != nil {
+		return err
+	}
+	s.ln = ln
+	s.logger.Println("listening on", s.addr)
+
+	go func() {
+		err := s.grpc.Serve(s.ln)
+		if err != nil {
+			s.logger.Println("gRPC Serve() returned:", err.Error())
+		}
+	}()
+
+	return nil
+}
+
+func (s *Service) Close() error {
+	s.grpc.GracefulStop()
+	s.ln = nil
+	s.logger.Println("gRPC server stopped")
+	return nil
 }
 
 type gprcService Service
