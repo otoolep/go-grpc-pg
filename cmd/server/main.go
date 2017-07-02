@@ -17,9 +17,9 @@ import (
 const (
 	DefaultgRPCAddr           = "localhost:11000"
 	DefaultPostgreSQLAddr     = "localhost:5432"
-	DefaultPostgreSQLDB       = "pg"
-	DefaultPostgreSQLUser     = "user"
-	DefaultPostgreSQLPassword = "password"
+	DefaultPostgreSQLDB       = "pggo"
+	DefaultPostgreSQLUser     = "postgres"
+	DefaultPostgreSQLPassword = "postgres"
 )
 
 // Command line parameters
@@ -43,16 +43,24 @@ func init() {
 
 func main() {
 	flag.Parse()
+	log.SetFlags(log.LstdFlags)
+	log.SetPrefix("[main] ")
 
-	// Connect to the database.
+	// Create database connection.
 	conn, err := pgConnection()
 	if err != nil {
 		log.Fatal("invalid PostgreSQL connection parameters:", err.Error())
 	}
 	db, err := sql.Open("postgres", conn)
 	if err != nil {
-		log.Fatal("failed to connect to PostgreSQL:", err.Error())
+		log.Fatal("failed to open PostgreSQL:", err.Error())
 	}
+
+	// Verify connection.
+	if err := db.Ping(); err != nil {
+		log.Fatal("failed to verify connection to PostgreSQL:", err.Error())
+	}
+	log.Println("database connection verified")
 
 	// Create the service.
 	srv := service.New(gRPCAddr, db)
