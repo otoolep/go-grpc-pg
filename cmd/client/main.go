@@ -8,6 +8,7 @@ import (
 
 	pb "github.com/otoolep/go-grpc-pg/proto"
 
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
@@ -38,4 +39,10 @@ func main() {
 
 	client := pb.NewDBProviderClient(conn)
 	_ = client
+
+	r, err := client.Query(context.Background(), &pb.QueryRequest{Stmt: "SELECT * FROM foo"})
+	if err != nil {
+		log.Fatalf("failed to query: %s", err.Error())
+	}
+	fmt.Println(">>>>", r.Columns, r.Types)
 }

@@ -66,11 +66,41 @@ func (s *Service) Close() error {
 type gprcService Service
 
 func (g *gprcService) Query(c context.Context, q *pb.QueryRequest) (*pb.QueryResponse, error) {
-	_, err := g.db.Query(q.Stmt)
+	rows, err := g.db.Query(q.Stmt)
 	if err != nil {
 		return nil, err
 	}
-	return nil, nil
+	defer rows.Close()
+
+	cols, err := rows.Columns()
+	if err != nil {
+		return nil, err
+	}
+
+	response := pb.QueryResponse{
+		Columns: cols,
+		Types:   make([]string, len(cols)),
+	}
+
+	typs, err := rows.ColumnTypes()
+	if err != nil {
+		return nil, err
+	}
+
+	for i, t := range typs {
+		response.Types[i] = t.DatabaseTypeName()
+	}
+
+	// for rows.Next() {
+	// 	var name string
+	// 	if err := rows.Scan(&name); err != nil {
+	// 		return nil, err
+	// 	}
+	// 	if err := rows.Err(); err != nil {
+	// 		return nil, err
+	// 	}
+	// }
+	return &response, nil
 }
 
 func (g *gprcService) Exec(c context.Context, e *pb.ExecRequest) (*pb.ExecResponse, error) {
