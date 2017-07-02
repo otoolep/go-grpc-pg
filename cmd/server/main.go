@@ -60,7 +60,7 @@ func main() {
 	if err := db.Ping(); err != nil {
 		log.Fatal("failed to verify connection to PostgreSQL:", err.Error())
 	}
-	log.Println("database connection verified")
+	log.Println("database connection verified to", pgAddr)
 
 	// Create the service.
 	srv := service.New(gRPCAddr, db)
