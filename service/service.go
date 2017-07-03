@@ -79,27 +79,20 @@ func (g *gprcService) Query(c context.Context, q *pb.QueryRequest) (*pb.QueryRes
 
 	response := pb.QueryResponse{
 		Columns: cols,
-		Types:   make([]string, len(cols)),
 	}
 
-	typs, err := rows.ColumnTypes()
-	if err != nil {
-		return nil, err
-	}
+	for rows.Next() {
+		row_i := make([]interface{}, len(cols))
+		row := make([]string, len(cols))
+		for i, _ := range row {
+			row_i[i] = &row[i]
+		}
 
-	for i, t := range typs {
-		response.Types[i] = t.DatabaseTypeName()
+		if err := rows.Scan(row_i...); err != nil {
+			return nil, err
+		}
+		response.Rows = append(response.Rows, &pb.Row{Values: row})
 	}
-
-	// for rows.Next() {
-	// 	var name string
-	// 	if err := rows.Scan(&name); err != nil {
-	// 		return nil, err
-	// 	}
-	// 	if err := rows.Err(); err != nil {
-	// 		return nil, err
-	// 	}
-	// }
 	return &response, nil
 }
 
