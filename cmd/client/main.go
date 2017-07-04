@@ -19,8 +19,6 @@ const (
 	DefaultgRPCAddr = "localhost:11000"
 )
 
-var Prompt = []byte(`>> `)
-
 // Command line parameters
 var gRPCAddr string
 
@@ -92,6 +90,6 @@ func isQuery(line string) bool {
 }
 
 func prompt(w *bufio.Writer) {
-	w.Write(Prompt)
+	w.Write([]byte(`>> `))
 	w.Flush()
 }
