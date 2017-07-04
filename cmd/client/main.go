@@ -51,18 +51,40 @@ func main() {
 		f.Flush()
 
 		for s.Scan() {
-			line := strings.Trim(s.Text(), " ")
-			if line == "\n" {
+			line := strings.TrimSpace(s.Text())
+			if line == "" {
 				continue
 			}
 
-			_, err = client.Query(context.Background(), &pb.QueryRequest{s.Text()})
-			if err != nil {
-				fmt.Printf("failed to query: %s\n", err.Error())
+			if isQuery(line) {
+				resp, err := client.Query(context.Background(), &pb.QueryRequest{s.Text()})
+				if err != nil {
+					fmt.Printf("query error: %s\n", err.Error())
+				}
+				for _, r := range resp.Rows {
+					for _, v := range r.Values {
+						fmt.Printf("%s\t", v)
+					}
+					fmt.Println()
+				}
+			} else {
+				resp, err := client.Exec(context.Background(), &pb.ExecRequest{s.Text()})
+				if err != nil {
+					fmt.Printf("exec error: %s\n", err.Error())
+				}
+				fmt.Printf("Last Insert ID: %d, rows affected: %d\n", resp.LastInsertId, resp.RowsAffected)
 			}
 
 			f.Write(Prompt)
 			f.Flush()
 		}
 	}
+}
+
+func isQuery(line string) bool {
+	index := strings.Index(line, " ")
+	if index >= 0 {
+		return strings.ToUpper(line[:index]) == "SELECT"
+	}
+	return false
 }

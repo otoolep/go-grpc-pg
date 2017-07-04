@@ -122,7 +122,8 @@ func (g *gprcService) Exec(c context.Context, e *pb.ExecRequest) (*pb.ExecRespon
 
 	lid, err := r.LastInsertId()
 	if err != nil {
-		return nil, err
+		// Not all databases support LastInsertId()
+		lid = -1
 	}
 	ra, err := r.RowsAffected()
 	if err != nil {
