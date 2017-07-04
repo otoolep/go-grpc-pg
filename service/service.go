@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc"
 )
 
+// Service represents a gRPC service that communicates with a database backend.
 type Service struct {
 	grpc *grpc.Server
 	db   *sql.DB
@@ -22,6 +23,7 @@ type Service struct {
 	logger *log.Logger
 }
 
+// New returns an instantiated service.
 func New(addr string, db *sql.DB) *Service {
 	s := Service{
 		grpc:   grpc.NewServer(),
@@ -34,10 +36,12 @@ func New(addr string, db *sql.DB) *Service {
 	return &s
 }
 
+// Addr returns the bind address of the gRPC service.
 func (s *Service) Addr() string {
 	return s.addr
 }
 
+// Open opens the service, starting it listening on the configured address.
 func (s *Service) Open() error {
 	ln, err := net.Listen("tcp", s.addr)
 	if err != nil {
@@ -56,6 +60,7 @@ func (s *Service) Open() error {
 	return nil
 }
 
+// Close closes the service.
 func (s *Service) Close() error {
 	s.grpc.GracefulStop()
 	s.ln = nil
@@ -63,8 +68,14 @@ func (s *Service) Close() error {
 	return nil
 }
 
+// gprcService is an unexported type, that is the same type as Service.
+//
+// Having the methods that the gRPC service requires on this type means that even though
+// the methods are exported, since the type is not, these methods are not visible outside
+// this package.
 type gprcService Service
 
+// Query implements the Query interface of the gRPC service.
 func (g *gprcService) Query(c context.Context, q *pb.QueryRequest) (*pb.QueryResponse, error) {
 	rows, err := g.db.Query(q.Stmt)
 	if err != nil {
@@ -72,6 +83,7 @@ func (g *gprcService) Query(c context.Context, q *pb.QueryRequest) (*pb.QueryRes
 	}
 	defer rows.Close()
 
+	// Get the column names.
 	cols, err := rows.Columns()
 	if err != nil {
 		return nil, err
@@ -81,9 +93,11 @@ func (g *gprcService) Query(c context.Context, q *pb.QueryRequest) (*pb.QueryRes
 		Columns: cols,
 	}
 
+	// Iterate through each row returned by the query.
 	for rows.Next() {
-		row_i := make([]interface{}, len(cols))
 		row := make([]string, len(cols))
+		// Get a set of pointers to the strings allocated above.
+		row_i := make([]interface{}, len(cols))
 		for i, _ := range row {
 			row_i[i] = &row[i]
 		}
@@ -91,11 +105,15 @@ func (g *gprcService) Query(c context.Context, q *pb.QueryRequest) (*pb.QueryRes
 		if err := rows.Scan(row_i...); err != nil {
 			return nil, err
 		}
+
+		// Add the latest rows to existing rows.
 		response.Rows = append(response.Rows, &pb.Row{Values: row})
 	}
+
 	return &response, nil
 }
 
+// Exec implements the Exec interface of the gRPC service.
 func (g *gprcService) Exec(c context.Context, e *pb.ExecRequest) (*pb.ExecResponse, error) {
 	_, err := g.db.Exec(e.Stmt)
 	if err != nil {
