@@ -39,9 +39,8 @@ func main() {
 
 	client := pb.NewDBProviderClient(conn)
 
-	r, err := client.Query(context.Background(), &pb.QueryRequest{Stmt: "SELECT * FROM foo"})
+	_, err = client.Query(context.Background(), &pb.QueryRequest{Stmt: "SELECT * FROM foo"})
 	if err != nil {
 		log.Fatalf("failed to query: %s", err.Error())
 	}
-	fmt.Println(">>>>", r.Columns, r.Rows)
 }
