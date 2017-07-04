@@ -17,6 +17,13 @@ go install ./...
 ```
 Some people consider using a distinct `GOPATH` environment variable for each project _doing it wrong_. In practise I, and many other Go programmers, find this actually most convenient.
 
+### Optional step to speed up testing
+Unit testing actually uses SQLite, which is built as part of the test suite -- there is no need to install SQLite separately. However the compilation of SQLite is slow, and quickly becomes tedious if continually repeated. To avoid continual compilation every test run, execute the following command:
+```
+cd $GOPATH
+go install github.com/mattn/go-sqlite3
+```
+
 ## Running go-grpc-pg
 Once built as per above, launch the server as follows:
 ```
