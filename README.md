@@ -11,7 +11,7 @@ Download and build it like so:
 mkdir go-grpc-pg # Or any directory of your choice
 cd go-grpc-pg/
 export GOPATH=$PWD
-go get github.com/otoolep/go-grpc-pg
+go get -t github.com/otoolep/go-grpc-pg
 cd src/github.com/otoolep/go-grpc-pg
 go install ./...
 ```
