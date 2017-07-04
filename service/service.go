@@ -97,12 +97,12 @@ func (g *gprcService) Query(c context.Context, q *pb.QueryRequest) (*pb.QueryRes
 	for rows.Next() {
 		row := make([]string, len(cols))
 		// Get a set of pointers to the strings allocated above.
-		row_i := make([]interface{}, len(cols))
-		for i, _ := range row {
-			row_i[i] = &row[i]
+		rowI := make([]interface{}, len(cols))
+		for i := range row {
+			rowI[i] = &row[i]
 		}
 
-		if err := rows.Scan(row_i...); err != nil {
+		if err := rows.Scan(rowI...); err != nil {
 			return nil, err
 		}
 
