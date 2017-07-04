@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 
 	pb "github.com/otoolep/go-grpc-pg/proto"
 
@@ -77,6 +78,7 @@ type gprcService Service
 
 // Query implements the Query interface of the gRPC service.
 func (g *gprcService) Query(c context.Context, q *pb.QueryRequest) (*pb.QueryResponse, error) {
+	start := time.Now()
 	rows, err := g.db.Query(q.Stmt)
 	if err != nil {
 		return nil, err
@@ -110,11 +112,14 @@ func (g *gprcService) Query(c context.Context, q *pb.QueryRequest) (*pb.QueryRes
 		response.Rows = append(response.Rows, &pb.Row{Values: row})
 	}
 
+	g.logger.Printf(`query '%s' completed in %s, %d %s returned`,
+		q.Stmt, time.Since(start), len(response.Rows), prettyRows(int64(len(response.Rows))))
 	return &response, nil
 }
 
 // Exec implements the Exec interface of the gRPC service.
 func (g *gprcService) Exec(c context.Context, e *pb.ExecRequest) (*pb.ExecResponse, error) {
+	start := time.Now()
 	r, err := g.db.Exec(e.Stmt)
 	if err != nil {
 		return nil, err
@@ -130,8 +135,17 @@ func (g *gprcService) Exec(c context.Context, e *pb.ExecRequest) (*pb.ExecRespon
 		return nil, err
 	}
 
+	g.logger.Printf(`exec '%s' completed in %s, %d %s affected`,
+		e.Stmt, time.Since(start), ra, prettyRows(ra))
 	return &pb.ExecResponse{
 		LastInsertId: lid,
 		RowsAffected: ra,
 	}, nil
+}
+
+func prettyRows(n int64) string {
+	if n == 1 {
+		return "row"
+	}
+	return "rows"
 }
