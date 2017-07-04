@@ -38,7 +38,6 @@ func main() {
 	defer conn.Close()
 
 	client := pb.NewDBProviderClient(conn)
-	_ = client
 
 	r, err := client.Query(context.Background(), &pb.QueryRequest{Stmt: "SELECT * FROM foo"})
 	if err != nil {

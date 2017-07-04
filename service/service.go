@@ -36,9 +36,9 @@ func New(addr string, db *sql.DB) *Service {
 	return &s
 }
 
-// Addr returns the bind address of the gRPC service.
+// Addr returns the address on which the service is listening.
 func (s *Service) Addr() string {
-	return s.addr
+	return s.ln.Addr().String()
 }
 
 // Open opens the service, starting it listening on the configured address.
@@ -48,7 +48,7 @@ func (s *Service) Open() error {
 		return err
 	}
 	s.ln = ln
-	s.logger.Println("listening on", s.addr)
+	s.logger.Println("listening on", s.ln.Addr().String())
 
 	go func() {
 		err := s.grpc.Serve(s.ln)
@@ -115,9 +115,22 @@ func (g *gprcService) Query(c context.Context, q *pb.QueryRequest) (*pb.QueryRes
 
 // Exec implements the Exec interface of the gRPC service.
 func (g *gprcService) Exec(c context.Context, e *pb.ExecRequest) (*pb.ExecResponse, error) {
-	_, err := g.db.Exec(e.Stmt)
+	r, err := g.db.Exec(e.Stmt)
 	if err != nil {
 		return nil, err
 	}
-	return nil, nil
+
+	lid, err := r.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	ra, err := r.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.ExecResponse{
+		LastInsertId: lid,
+		RowsAffected: ra,
+	}, nil
 }

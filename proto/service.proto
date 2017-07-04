@@ -34,6 +34,7 @@ message ExecRequest {
 
 // The exec response
 message ExecResponse {
-  string message = 1;
+  int64 lastInsertId = 1;
+  int64 rowsAffected = 2;
 }
 
