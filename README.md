@@ -28,7 +28,7 @@ Once built as per above, launch the server as follows:
 ```
 $GOPATH/bin/server
 ```
-This assumes PostgreSQL is listening on `localhost`, port 5432. Run `$GOPATH/bin/server -h` to learn the full configuration the server expects of PostgreSQL.
+This assumes PostgreSQL is listening on `localhost`, port 5432. Run `$GOPATH/bin/server -h` to learn the full configuration the server expects of PostgreSQL, including the database, user, and password that must exist.
 
 ### Generating queries
 Assuming the server is up and running, execute the client as follows.
