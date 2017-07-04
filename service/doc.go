@@ -1,6 +1,6 @@
 /*
 Package service represents a gRPC service that communicates with a database backend.
 
-It accepts any sql.DB object.
+It works with any database that provides a sql.DB object.
 */
 package service
