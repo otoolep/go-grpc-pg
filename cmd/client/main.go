@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	pb "github.com/otoolep/go-grpc-pg/proto"
 
@@ -16,6 +18,8 @@ import (
 const (
 	DefaultgRPCAddr = "localhost:11000"
 )
+
+var Prompt = []byte(`>> `)
 
 // Command line parameters
 var gRPCAddr string
@@ -39,8 +43,26 @@ func main() {
 
 	client := pb.NewDBProviderClient(conn)
 
-	_, err = client.Query(context.Background(), &pb.QueryRequest{Stmt: "SELECT * FROM foo"})
-	if err != nil {
-		log.Fatalf("failed to query: %s", err.Error())
+	s := bufio.NewScanner(os.Stdin)
+	f := bufio.NewWriter(os.Stdout)
+
+	for {
+		f.Write(Prompt)
+		f.Flush()
+
+		for s.Scan() {
+			line := strings.Trim(s.Text(), " ")
+			if line == "\n" {
+				continue
+			}
+
+			_, err = client.Query(context.Background(), &pb.QueryRequest{s.Text()})
+			if err != nil {
+				fmt.Printf("failed to query: %s\n", err.Error())
+			}
+
+			f.Write(Prompt)
+			f.Flush()
+		}
 	}
 }
