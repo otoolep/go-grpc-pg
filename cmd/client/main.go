@@ -44,5 +44,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to query: %s", err.Error())
 	}
-	fmt.Println(">>>>", r.Columns, r.Types)
+	fmt.Println(">>>>", r.Columns, r.Rows)
 }
