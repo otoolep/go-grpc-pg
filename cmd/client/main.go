@@ -50,6 +50,7 @@ func main() {
 		for s.Scan() {
 			line := strings.TrimSpace(s.Text())
 			if line == "" {
+				prompt(f)
 				continue
 			}
 
