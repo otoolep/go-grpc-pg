@@ -44,42 +44,42 @@ func main() {
 	s := bufio.NewScanner(os.Stdin)
 	f := bufio.NewWriter(os.Stdout)
 
-	for {
-		prompt(f)
+	prompt(f)
 
-		for s.Scan() {
-			line := strings.TrimSpace(s.Text())
-			if line == "" {
+	for s.Scan() {
+		line := strings.TrimSpace(s.Text())
+		if line == "" {
+			prompt(f)
+			continue
+		}
+
+		if isQuery(line) {
+			resp, err := client.Query(context.Background(), &pb.QueryRequest{s.Text()})
+			if err != nil {
+				fmt.Printf("query error: %s\n", err.Error())
 				prompt(f)
 				continue
 			}
-
-			if isQuery(line) {
-				resp, err := client.Query(context.Background(), &pb.QueryRequest{s.Text()})
-				if err != nil {
-					fmt.Printf("query error: %s\n", err.Error())
-					prompt(f)
-					continue
+			for _, r := range resp.Rows {
+				for _, v := range r.Values {
+					fmt.Printf("%s\t", v)
 				}
-				for _, r := range resp.Rows {
-					for _, v := range r.Values {
-						fmt.Printf("%s\t", v)
-					}
-					fmt.Println()
-				}
-			} else {
-				resp, err := client.Exec(context.Background(), &pb.ExecRequest{s.Text()})
-				if err != nil {
-					fmt.Printf("exec error: %s\n", err.Error())
-					prompt(f)
-					continue
-				}
-				fmt.Printf("Last Insert ID: %d, rows affected: %d\n", resp.LastInsertId, resp.RowsAffected)
+				fmt.Println()
 			}
-
-			prompt(f)
+		} else {
+			resp, err := client.Exec(context.Background(), &pb.ExecRequest{s.Text()})
+			if err != nil {
+				fmt.Printf("exec error: %s\n", err.Error())
+				prompt(f)
+				continue
+			}
+			fmt.Printf("Last Insert ID: %d, rows affected: %d\n", resp.LastInsertId, resp.RowsAffected)
 		}
+
+		prompt(f)
 	}
+
+	fmt.Println()
 }
 
 func isQuery(line string) bool {
