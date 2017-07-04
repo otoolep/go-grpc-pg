@@ -112,8 +112,8 @@ func (g *gprcService) Query(c context.Context, q *pb.QueryRequest) (*pb.QueryRes
 		response.Rows = append(response.Rows, &pb.Row{Values: row})
 	}
 
-	g.logger.Printf(`query '%s' completed in %s, %d rows returned`,
-		q.Stmt, time.Since(start), len(response.Rows))
+	g.logger.Printf(`query '%s' completed in %s, %d %s returned`,
+		q.Stmt, time.Since(start), len(response.Rows), prettyRows(int64(len(response.Rows))))
 	return &response, nil
 }
 
@@ -135,10 +135,17 @@ func (g *gprcService) Exec(c context.Context, e *pb.ExecRequest) (*pb.ExecRespon
 		return nil, err
 	}
 
-	g.logger.Printf(`exec '%s' completed in %s, %d rows affected`,
-		e.Stmt, time.Since(start), ra)
+	g.logger.Printf(`exec '%s' completed in %s, %d %s affected`,
+		e.Stmt, time.Since(start), ra, prettyRows(ra))
 	return &pb.ExecResponse{
 		LastInsertId: lid,
 		RowsAffected: ra,
 	}, nil
+}
+
+func prettyRows(n int64) string {
+	if n == 1 {
+		return "row"
+	}
+	return "rows"
 }
