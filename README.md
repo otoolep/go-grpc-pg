@@ -36,3 +36,17 @@ Assuming the server is up and running, execute the client as follows.
 ```
 $GOPATH/bin/client
 ```
+An example session is shown below.
+```
+$ $GOPATH/bin/client
+>> CREATE TABLE bar (id INTEGER NOT NULL PRIMARY KEY, name TEXT)
+>> SELECT * FROM bar
+>> INSERT INTO bar(id, name) VALUES(1, 'bob')
+Last Insert ID: -1, rows affected: 1
+>> INSERT INTO bar(id, name) VALUES(2, 'tom')
+Last Insert ID: -1, rows affected: 1
+>> SELECT * FROM bar
+1       bob
+2       tom
+>>
+```

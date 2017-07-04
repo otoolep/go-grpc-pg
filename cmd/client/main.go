@@ -47,8 +47,7 @@ func main() {
 	f := bufio.NewWriter(os.Stdout)
 
 	for {
-		f.Write(Prompt)
-		f.Flush()
+		prompt(f)
 
 		for s.Scan() {
 			line := strings.TrimSpace(s.Text())
@@ -60,6 +59,8 @@ func main() {
 				resp, err := client.Query(context.Background(), &pb.QueryRequest{s.Text()})
 				if err != nil {
 					fmt.Printf("query error: %s\n", err.Error())
+					prompt(f)
+					continue
 				}
 				for _, r := range resp.Rows {
 					for _, v := range r.Values {
@@ -71,12 +72,13 @@ func main() {
 				resp, err := client.Exec(context.Background(), &pb.ExecRequest{s.Text()})
 				if err != nil {
 					fmt.Printf("exec error: %s\n", err.Error())
+					prompt(f)
+					continue
 				}
 				fmt.Printf("Last Insert ID: %d, rows affected: %d\n", resp.LastInsertId, resp.RowsAffected)
 			}
 
-			f.Write(Prompt)
-			f.Flush()
+			prompt(f)
 		}
 	}
 }
@@ -87,4 +89,9 @@ func isQuery(line string) bool {
 		return strings.ToUpper(line[:index]) == "SELECT"
 	}
 	return false
+}
+
+func prompt(w *bufio.Writer) {
+	w.Write(Prompt)
+	w.Flush()
 }
