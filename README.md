@@ -3,10 +3,10 @@ go-grpc-pg [![Circle CI](https://circleci.com/gh/otoolep/go-grpc-pg/tree/master.
 
 A simple service demonstrating Go, gRPC, and PostgreSQL. Integration with [CircleCI](http://www.circleci.com) included.
 
-## Building and running go-grpc-pg
+## Building go-grpc-pg
 *Building go-httpd requires Go 1.8 or later. [gvm](https://github.com/moovweb/gvm) is a great tool for installing and managing your versions of Go.*
 
-Starting and running go-grpc-pg is easy. Download and build it like so:
+Download and build it like so:
 ```
 mkdir go-grpc-pg # Or any directory of your choice
 cd go-grpc-pg/
@@ -17,7 +17,8 @@ go install ./...
 ```
 Some people consider using a distinct `GOPATH` environment variable for each project _doing it wrong_. In practise I, and many other Go programmers, find this actually most convenient.
 
-Run it like so:
+## Running go-grpc-pg
+Once built as per above, launch the server as follows:
 ```
 $GOPATH/bin/server
 ```
