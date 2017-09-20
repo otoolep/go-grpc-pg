@@ -143,6 +143,7 @@ func (g *gprcService) Exec(c context.Context, e *pb.ExecRequest) (*pb.ExecRespon
 	}, nil
 }
 
+// prettyRows returns a singular or plural form of "row", depending on n.
 func prettyRows(n int64) string {
 	if n == 1 {
 		return "row"
