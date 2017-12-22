@@ -1,7 +1,7 @@
 go-grpc-pg [![Circle CI](https://circleci.com/gh/otoolep/go-grpc-pg/tree/master.svg?style=svg)](https://circleci.com/gh/otoolep/go-grpc-pg/tree/master) [![GoDoc](https://godoc.org/github.com/otoolep/go-grpc-pg?status.svg)](https://godoc.org/github.com/otoolep/go-grpc-pg) [![Go Report Card](https://goreportcard.com/badge/github.com/otoolep/go-grpc-pg)](https://goreportcard.com/report/github.com/otoolep/go-grpc-pg)
 ======
 
-A simple service demonstrating Go, gRPC, and PostgreSQL. Integration with [CircleCI](http://www.circleci.com) included.
+A simple service demonstrating Go, gRPC, and PostgreSQL. Integration with [CircleCI (version 1.0)](http://www.circleci.com) included.
 
 ## Building go-grpc-pg
 *Building go-httpd requires Go 1.8 or later. [gvm](https://github.com/moovweb/gvm) is a great tool for installing and managing your versions of Go.*
