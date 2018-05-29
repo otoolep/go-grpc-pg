@@ -33,7 +33,7 @@ func New(addr string, db *sql.DB) *Service {
 		logger: log.New(os.Stderr, "[service] ", log.LstdFlags),
 	}
 
-	pb.RegisterDBProviderServer(s.grpc, (*gprcService)(&s))
+	pb.RegisterDBProviderServer(s.grpc, (*grpcService)(&s))
 	return &s
 }
 
@@ -68,15 +68,15 @@ func (s *Service) Close() error {
 	return nil
 }
 
-// gprcService is an unexported type, that is the same type as Service.
+// grpcService is an unexported type, that is the same type as Service.
 //
 // Having the methods that the gRPC service requires on this type means that even though
 // the methods are exported, since the type is not, these methods are not visible outside
 // this package.
-type gprcService Service
+type grpcService Service
 
 // Query implements the Query interface of the gRPC service.
-func (g *gprcService) Query(c context.Context, q *pb.QueryRequest) (*pb.QueryResponse, error) {
+func (g *grpcService) Query(c context.Context, q *pb.QueryRequest) (*pb.QueryResponse, error) {
 	start := time.Now()
 	rows, err := g.db.Query(q.Stmt)
 	if err != nil {
@@ -117,7 +117,7 @@ func (g *gprcService) Query(c context.Context, q *pb.QueryRequest) (*pb.QueryRes
 }
 
 // Exec implements the Exec interface of the gRPC service.
-func (g *gprcService) Exec(c context.Context, e *pb.ExecRequest) (*pb.ExecResponse, error) {
+func (g *grpcService) Exec(c context.Context, e *pb.ExecRequest) (*pb.ExecResponse, error) {
 	start := time.Now()
 	r, err := g.db.Exec(e.Stmt)
 	if err != nil {
