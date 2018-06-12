@@ -1,9 +1,10 @@
 version: 2
 jobs:
   build:
-    working_directory: ~/go-grpc-pg/src/github.com/otoolep/go-grpc-pg
+    working_directory: ~/hraftd/src/github.com/otoolep/hraftd
     docker:
       - image: circleci/golang:1.10
+
 
     steps:
         - checkout
@@ -13,4 +14,4 @@ jobs:
         - run:
             command: go test -race -timeout 120s -v ./...
             environment:
-				GORACE: "halt_on_error=1"
+                GORACE: "halt_on_error=1"
